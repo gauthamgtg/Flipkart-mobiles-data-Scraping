@@ -41,6 +41,7 @@ with open('mobiles_flipkart_v2.csv', mode='w', encoding='utf-8', newline='') as 
             # extract the selling price
             selling_price_element = container.find('div', {'class': '_30jeq3 _1_WHN1'})
             selling_price_text = selling_price_element.text if selling_price_element else 'N/A'
+            selling_price_parts = selling_price_text.split('¹')
             selling_price = selling_price_text.replace('â‚¹', '').replace(',', '')
 
 
@@ -91,4 +92,7 @@ with open('mobiles_flipkart_v2.csv', mode='w', encoding='utf-8', newline='') as 
 
             # write the extracted information to the CSV file
             brand = product_name.split()[0].upper() if product_name else 'N/A'
+            num_ratings = num_ratings.split()[0] if num_ratings else 'N/A'
+            num_reviews = num_reviews.split()[0] if num_reviews else 'N/A'
+            display_size_cm = display_size.split()[0] if display_size else 'N/A'
             writer.writerow([product_name, brand, product_rating, num_ratings, num_reviews, selling_price, original_price, ram, rom, display_size, camera, battery, processor, product_highlights])
