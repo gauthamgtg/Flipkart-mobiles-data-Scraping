@@ -1,0 +1,94 @@
+import csv
+import requests
+from bs4 import BeautifulSoup
+
+# create a CSV file and write the header row
+with open('mobiles_flipkart_v2.csv', mode='w', encoding='utf-8', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Product Name','Brand', 'Product Rating', 'Number of Ratings','Number of Reviews', 'Selling Price', 'Original Price', 'RAM', 'ROM', 'Display Size', 'Camera', 'Battery', 'Processor','Highlights'])
+
+    # loop through the first 200 pages
+    for page_num in range(1, 331):
+        url = f'https://www.flipkart.com/mobiles/pr?sid=tyy%2C4io&otracker=categorytree&page={page_num}'
+
+        # send a GET request to the URL
+        response = requests.get(url)
+
+        # create a BeautifulSoup object
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # find all product containers on the page
+        product_containers = soup.find_all('div', {'class': '_2kHMtA'})
+
+        # loop through each container and extract information
+        for container in product_containers:
+            # extract the product name
+            product_name_element = container.find('div', {'class': '_4rR01T'})
+            product_name = product_name_element.text if product_name_element else 'N/A'
+
+            # extract the product rating
+            product_rating_element = container.find('div', {'class': '_3LWZlK'})
+            product_rating = product_rating_element.text if product_rating_element else 'N/A'
+
+            # extract the number of ratings
+            num_ratings_element = container.find('span', {'class': '_2_R_DZ'})
+            num_ratings_text = num_ratings_element.text if num_ratings_element else 'N/A'
+            num_ratings_parts = num_ratings_text.split('&')
+            num_ratings = num_ratings_parts[0].strip() if len(num_ratings_parts) > 0 else 'N/A'
+            num_reviews = num_ratings_parts[1].strip() if len(num_ratings_parts) > 1 else 'N/A'
+
+
+            # extract the selling price
+            selling_price_element = container.find('div', {'class': '_30jeq3 _1_WHN1'})
+            selling_price_text = selling_price_element.text if selling_price_element else 'N/A'
+            selling_price = selling_price_text.replace('â‚¹', '').replace(',', '')
+
+
+            # extract the original price
+            original_price_element = container.find('div', {'class': '_3I9_wc _27UcVY'})
+            original_price = original_price_element.text if original_price_element else 'N/A'
+            
+            # extract the product highlights
+            product_highlights = []
+            highlight_elements = container.find_all('li', {'class': 'rgWa7D'})
+            for element in highlight_elements:
+                highlight_text = element.text
+                if 'RAM' in highlight_text:
+                    product_highlights.append(highlight_text)
+                elif 'ROM' in highlight_text:
+                    product_highlights.append(highlight_text)
+                elif 'Display' in highlight_text:
+                    product_highlights.append(highlight_text)
+                elif 'Camera' in highlight_text:
+                    product_highlights.append(highlight_text)
+                elif 'Battery' in highlight_text:
+                    product_highlights.append(highlight_text)
+                elif 'Processor' in highlight_text:
+                    product_highlights.append(highlight_text)
+
+            # extract the product highlights
+            ram = 'N/A'
+            rom = 'N/A'
+            display_size = 'N/A'
+            camera = 'N/A'
+            battery = 'N/A'
+            processor = 'N/A'
+            highlight_elements = container.find_all('li', {'class': 'rgWa7D'})
+            for element in highlight_elements:
+                highlight_text = element.text
+                if 'RAM' in highlight_text:
+                    ram = highlight_text
+                elif 'ROM' in highlight_text:
+                    rom = highlight_text
+                elif 'Display' in highlight_text:
+                    display_size = highlight_text
+                elif 'Camera' in highlight_text:
+                    camera = highlight_text
+                elif 'Battery' in highlight_text:
+                    battery = highlight_text
+                elif 'Processor' in highlight_text:
+                    processor = highlight_text
+
+            # write the extracted information to the CSV file
+            brand = product_name.split()[0].upper() if product_name else 'N/A'
+            writer.writerow([product_name, brand, product_rating, num_ratings, num_reviews, selling_price, original_price, ram, rom, display_size, camera, battery, processor, product_highlights])
